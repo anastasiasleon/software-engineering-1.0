@@ -1,8 +1,10 @@
 import streamlit as st
 from transformers import pipeline
 
+# Загрузка модели для анализа тональности
 @st.cache_resource
 def load_sentiment_pipeline():
+    # Изменяем имя модели на локальный путь
     model_path = "./local_model" # Путь к папке, куда вы скачали файлы модели
     
     try:
@@ -25,10 +27,12 @@ if st.button("Анализировать тональность"):
             sentiment = result[0]['label']
             score = result[0]['score']
             st.subheader("Результат анализа:")
-            if sentiment == "POSITIVE":
+            if sentiment in ["POSITIVE", "Very Positive"]:
                 st.success(f"Тональность: Положительная (Уверенность: {score:.2f})")
-            else:
+            elif sentiment in ["NEGATIVE", "Very Negative"]:
                 st.error(f"Тональность: Отрицательная (Уверенность: {score:.2f})")
+            else:
+                st.info(f"Тональность: Нейтральная (Уверенность: {score:.2f})")
         except Exception as e:
             st.error(f"Произошла непредвиденная ошибка при анализе: {e}")
     else:
