@@ -43,6 +43,7 @@ Docker (опционально, для контейнеризованного з
 Установка и запуск (локально)
 Клонируйте репозиторий:
 git clone https://github.com/anastasiasleon/software-engineering-1.0.git
+
 cd software-engineering-1.0
 
 Установите зависимости:
