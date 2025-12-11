@@ -1,10 +1,15 @@
 import streamlit as st
 from transformers import pipeline
 
-# Загрузка модели для анализа тональности
 @st.cache_resource
 def load_sentiment_pipeline():
-    return pipeline("sentiment-analysis", model="tabularisai/multilingual-sentiment-analysis")
+    model_path = "./local_model" # Путь к папке, куда вы скачали файлы модели
+    
+    try:
+        return pipeline("sentiment-analysis", model=model_path)
+    except Exception as e:
+        st.error(f"Не удалось загрузить модель из локальной директории. Убедитесь, что все файлы модели находятся в папке '{model_path}'. Ошибка: {e}")
+        raise
 
 sentiment_pipeline = load_sentiment_pipeline()
 
@@ -25,6 +30,6 @@ if st.button("Анализировать тональность"):
             else:
                 st.error(f"Тональность: Отрицательная (Уверенность: {score:.2f})")
         except Exception as e:
-            st.error(f"Произошла непредвиденная ошибка: {e}")
+            st.error(f"Произошла непредвиденная ошибка при анализе: {e}")
     else:
         st.warning("Пожалуйста, введите текст для анализа.")
