@@ -11,7 +11,7 @@ Web-приложение для анализа настроения — это �
 🔧 Чистая и модульная архитектура на Python и Flask
 
 📁 Структура проекта
-text
+
 software-engineering-1.0/
 ├── app.py                    
 ├── requirements.txt         
