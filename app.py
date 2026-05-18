@@ -1,39 +1,57 @@
+import os
+
+import requests
 import streamlit as st
-from transformers import pipeline
 
-# Загрузка модели для анализа тональности
-@st.cache_resource
-def load_sentiment_pipeline():
-    # Изменяем имя модели на локальный путь
-    model_path = "./local_model" # Путь к папке, куда вы скачали файлы модели
-    
-    try:
-        return pipeline("sentiment-analysis", model=model_path)
-    except Exception as e:
-        st.error(f"Не удалось загрузить модель из локальной директории. Убедитесь, что все файлы модели находятся в папке '{model_path}'. Ошибка: {e}")
-        raise
+API_URL = os.getenv("API_URL", "http://localhost:8000").rstrip("/")
+REQUEST_TIMEOUT = int(os.getenv("API_TIMEOUT", "120"))
 
-sentiment_pipeline = load_sentiment_pipeline()
+
+def analyze_via_api(text: str) -> dict:
+    response = requests.post(
+        f"{API_URL}/analyze",
+        json={"text": text},
+        timeout=REQUEST_TIMEOUT,
+    )
+    response.raise_for_status()
+    return response.json()
+
 
 st.title("Многоязычный Анализатор Тональности")
+st.caption(f"Backend API: `{API_URL}`")
 st.write("Введите текст, чтобы определить его тональность (положительная или отрицательная).")
 
 user_input = st.text_area("Ваш текст для анализа:", "Я очень люблю это приложение!")
 
 if st.button("Анализировать тональность"):
-    if user_input:
-        try:
-            result = sentiment_pipeline(user_input)
-            sentiment = result[0]['label']
-            score = result[0]['score']
-            st.subheader("Результат анализа:")
-            if sentiment in ["POSITIVE", "Very Positive"]:
-                st.success(f"Тональность: Положительная (Уверенность: {score:.2f})")
-            elif sentiment in ["NEGATIVE", "Very Negative"]:
-                st.error(f"Тональность: Отрицательная (Уверенность: {score:.2f})")
-            else:
-                st.info(f"Тональность: Нейтральная (Уверенность: {score:.2f})")
-        except Exception as e:
-            st.error(f"Произошла непредвиденная ошибка при анализе: {e}")
-    else:
+    if not user_input.strip():
         st.warning("Пожалуйста, введите текст для анализа.")
+    else:
+        try:
+            with st.spinner("Отправка запроса на сервер..."):
+                result = analyze_via_api(user_input)
+            sentiment_type = result["sentiment_type"]
+            message = result["message"]
+            st.subheader("Результат анализа:")
+            if sentiment_type == "positive":
+                st.success(message)
+            elif sentiment_type == "negative":
+                st.error(message)
+            else:
+                st.info(message)
+        except requests.exceptions.ConnectionError:
+            st.error(
+                f"Не удалось подключиться к API ({API_URL}). "
+                "Запустите backend: `uvicorn api:app --host 0.0.0.0 --port 8000`"
+            )
+        except requests.exceptions.HTTPError as exc:
+            detail = ""
+            try:
+                detail = exc.response.json().get("detail", "")
+            except Exception:
+                detail = exc.response.text if exc.response is not None else ""
+            st.error(f"Ошибка API ({exc.response.status_code}): {detail}")
+        except requests.exceptions.Timeout:
+            st.error("Превышено время ожидания ответа от API.")
+        except Exception as exc:
+            st.error(f"Произошла непредвиденная ошибка: {exc}")
