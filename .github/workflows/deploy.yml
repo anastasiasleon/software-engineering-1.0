@@ -21,28 +21,14 @@ jobs:
       - name: Run tests
         run: pytest -v
 
-  deploy-backend:
+  deploy-hf:
     needs: test
     runs-on: ubuntu-latest
     if: github.event_name == 'push'
     steps:
-      - name: Trigger Render deploy
-        env:
-          RENDER_DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK }}
+      - name: Hugging Face Spaces
         run: |
-          if [ -z "$RENDER_DEPLOY_HOOK" ]; then
-            echo "RENDER_DEPLOY_HOOK secret is not set. Skipping backend deploy."
-            echo "Create a Deploy Hook in Render and add it to GitHub Secrets."
-            exit 0
-          fi
-          curl -fsS -X POST "$RENDER_DEPLOY_HOOK"
-
-  deploy-frontend:
-    needs: test
-    runs-on: ubuntu-latest
-    if: github.event_name == 'push'
-    steps:
-      - name: Streamlit Cloud hint
-        run: |
-          echo "Frontend (Streamlit): connect repo at https://share.streamlit.io"
-          echo "Set API_URL secret to your Render backend URL."
+          echo "Deploy: https://huggingface.co/new"
+          echo "1) Docker Space, root dir hf-api (backend)"
+          echo "2) Streamlit Space, root dir hf-app, secret API_URL"
+          echo "Spaces auto-rebuild when connected to GitHub on push."
