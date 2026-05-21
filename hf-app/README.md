@@ -1,22 +1,32 @@
 ---
-title: Sentiment Analyzer UI
+title: Sentiment Analyzer
 emoji: 📊
-colorFrom: purple
-colorTo: pink
+colorFrom: blue
+colorTo: green
 sdk: streamlit
 app_file: app.py
 pinned: false
-license: mit
 ---
 
-# Frontend: Streamlit
+# Многоязычный анализатор тональности
 
-Интерфейс для анализа тональности. Общается с backend (FastAPI) по сети.
+Streamlit-интерфейс. Backend (FastAPI) — отдельный Space или локально.
 
-**Настройка:** в Settings → Variables and secrets добавьте:
+**Модель:** [nlptown/bert-base-multilingual-uncased-sentiment](https://huggingface.co/nlptown/bert-base-multilingual-uncased-sentiment)
+
+## Секрет (Settings → Variables and secrets)
 
 ```
 API_URL = https://ВАШ-ЛОГИН-sentiment-api.hf.space
 ```
 
-(подставьте URL вашего Space с API)
+Без `API_URL` интерфейс покажет подсказку по настройке.
+
+## Локальный запуск
+
+```bash
+pip install -r requirements.txt
+# backend: uvicorn api:app --port 8000
+export API_URL=http://localhost:8000
+streamlit run app.py
+```

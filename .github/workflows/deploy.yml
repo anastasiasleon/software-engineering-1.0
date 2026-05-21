@@ -21,14 +21,14 @@ jobs:
       - name: Run tests
         run: pytest -v
 
-  deploy-hf:
+  deploy-railway:
     needs: test
     runs-on: ubuntu-latest
     if: github.event_name == 'push'
     steps:
-      - name: Hugging Face Spaces
+      - name: Railway deploy hint
         run: |
-          echo "Deploy: https://huggingface.co/new"
-          echo "1) Docker Space, root dir hf-api (backend)"
-          echo "2) Streamlit Space, root dir hf-app, secret API_URL"
-          echo "Spaces auto-rebuild when connected to GitHub on push."
+          echo "Railway: https://railway.app — 2 services from one GitHub repo"
+          echo "API:    config railway.api.toml, Dockerfile.api"
+          echo "UI:     config railway.streamlit.toml, Dockerfile.streamlit, env API_URL"
+          echo "Optional: RAILWAY_TOKEN in secrets for railwayapp/railway-deploy action"

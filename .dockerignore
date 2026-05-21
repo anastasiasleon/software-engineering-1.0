@@ -1,0 +1,12 @@
+venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.git/
+local_model/
+hf-api/
+hf-app/
+.vscode/
+*.md
+test_*.py
+.github/
